@@ -23,7 +23,7 @@ export const AppNavbar: React.FC = () => (
                             </NavLink>
                         </LinkContainer>
                     ))} */}
-                    <Nav.Link as={Link} to="/bus">Xe</Nav.Link>
+                    <Nav.Link as={Link} to="/coach">Xe khách</Nav.Link>
                     <Nav.Link as={Link} to="/movie">Phim</Nav.Link>
                     <Nav.Link as={Link} to="/flight">Máy bay</Nav.Link>
                     <Nav.Link as={Link} to="/train">Tàu hỏa</Nav.Link>
