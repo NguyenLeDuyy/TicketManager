@@ -1,0 +1,107 @@
+/* TimeGrid.css */
+
+.time-grid-container {
+  margin-top: 1rem;
+}
+
+.time-slot {
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  margin-bottom: 0.5rem;
+  min-height: 65px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  font-size: 0.5rem; /* Thêm dòng này để giảm font tổng thể */
+}
+
+.time-slot::before { /* Tạo đường kẻ trên bằng pseudo-element */
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px; /* Độ dày của đường kẻ */
+  background-color: transparent; /* Mặc định trong suốt */
+  transition: background-color 0.2s;
+}
+
+.time-slot:hover {
+  border-color: #adb5bd;
+}
+
+.time-slot-time {
+  font-weight: bold;
+  font-size: 0.5rem;
+  color: #dc3545; /* Màu đỏ mặc định cho giờ (Bootstrap's text-danger color) */
+}
+
+.time-slot-info {
+  color: #6c757d; /* Màu xám mặc định cho info */
+  font-size: 0.5rem;
+  margin-top: 0.25rem;
+  text-align: center; /* Căn giữa thông tin */
+}
+
+/* Trạng thái AVAILABLE */
+.time-slot.status-available {
+  background-color: #e6f7f0; /* Màu xanh lá cây rất nhạt */
+}
+.time-slot.status-available::before {
+  background-color: #0d6efd; /* Màu xanh dương cho đường kẻ trên (Bootstrap's primary color) */
+}
+.time-slot.status-available .time-slot-time {
+  color: #dc3545; /* Giờ màu đỏ */
+}
+.time-slot.status-available .time-slot-info {
+
+  color: #6c757d; /* Info màu xám */
+}
+
+/* Trạng thái FULL */
+.time-slot.status-full {
+  background-color: #ffebee; /* Màu đỏ/hồng rất nhạt */
+  cursor: not-allowed;
+}
+.time-slot.status-full::before {
+  background-color: #0d6efd; /* Màu xanh dương cho đường kẻ trên */
+}
+.time-slot.status-full .time-slot-time {
+  color: #dc3545; /* Giờ màu đỏ */
+}
+.time-slot.status-full .time-slot-info {
+  color: #dc3545; /* Info cũng màu đỏ */
+}
+
+/* Trạng thái SELECTED */
+.time-slot.status-selected {
+  background-color: #198754; /* Màu xanh lá cây đậm (Bootstrap's success color) */
+  color: white;
+  border-color: #198754; /* Viền cùng màu với nền */
+}
+.time-slot.status-selected::before {
+  background-color: transparent; /* Không có đường kẻ trên cho selected */
+}
+.time-slot.status-selected .time-slot-time,
+.time-slot.status-selected .time-slot-info {
+  color: white; /* Chữ màu trắng */
+}
+
+/* Tùy chỉnh khi hover cho từng trạng thái nếu cần */
+.time-slot.status-available:hover {
+  background-color: #d1f0e1; /* Hơi đậm hơn khi hover */
+}
+.time-slot.status-full:hover {
+ /* Có thể không cần thay đổi nhiều cho full khi hover vì nó đã bị vô hiệu hóa */
+  background-color: #ffdde0;
+}
+.time-slot.status-selected:hover {
+  background-color: #157347; /* Hơi đậm hơn khi hover */
+  border-color: #157347;
+}

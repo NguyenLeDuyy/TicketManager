@@ -1,0 +1,101 @@
+/* ...existing code... */
+/* Phần điều hướng (tháng/năm và các nút mũi tên) */
+.react-calendar__navigation {
+  display: flex;
+  height: 50px; /* Hoặc chiều cao bạn muốn */
+  margin-bottom: 0; /* Xóa margin nếu các ngày trong tuần nằm ngay dưới */
+  background-color: #0b68c5; /* Màu nền xanh đậm (ví dụ: Bootstrap's bg-dark) */
+  color: white; /* Màu chữ trắng */
+  align-items: center; /* Căn giữa các item theo chiều dọc */
+}
+
+.react-calendar__navigation button {
+  min-width: 44px;
+  background: none;
+  border: none;
+  font-size: 1rem; /* Điều chỉnh kích thước font */
+  cursor: pointer;
+  color: white; /* Màu chữ trắng cho các nút */
+  padding: 0.5rem 0.75rem; /* Thêm padding nếu cần */
+  text-transform: capitalize;
+}
+
+.react-calendar__navigation button:hover {
+  background-color: #495057; /* Màu nền đậm hơn một chút khi hover */
+}
+
+.react-calendar__navigation button:disabled {
+  background-color: #343a40; /* Giữ nguyên màu nền khi bị disable */
+  color: #6c757d; /* Màu chữ xám hơn cho nút bị disable */
+  cursor: not-allowed;
+}
+
+/* Nhãn tháng/năm */
+.react-calendar__navigation__label {
+  font-weight: bold;
+  flex-grow: 1 !important;
+  color: white; /* Đảm bảo màu chữ trắng */
+  pointer-events: none; /* Nếu bạn không muốn nó có thể click */
+  font-size: 0.2rem; /* Điều chỉnh kích thước font cho phù hợp */
+}
+
+/* Phần hiển thị các ngày trong tháng */
+.react-calendar__month-view__weekdays {
+  text-align: center;
+  text-transform: uppercase; /* Chữ hoa nếu cần */
+  font-weight: bold;
+  font-size: 0.85em; /* Điều chỉnh kích thước font */
+  color: #495057; /* Màu chữ cho các ngày trong tuần (ví dụ: xám đậm) */
+  background-color: #e9ecef; /* Màu nền cho hàng ngày trong tuần (ví dụ: xám nhạt) */
+  padding: 0.5em 0; /* Thêm padding nếu cần */
+  margin-bottom: 0.5em; /* Khoảng cách với các ô ngày */
+}
+
+/* CSS cho từng ô ngày trong tuần (thứ) */
+.react-calendar__month-view__weekdays__weekday {
+  padding: 0.5em; /* Padding cho từng chữ cái ngày */
+}
+
+/* Ghi đè style cho các ô ngày */
+/* ...existing code... */
+.react-calendar__tile {
+  max-width: 100%;
+  padding: 0.75em 0.5em;
+  background: none;
+  text-align: center;
+  line-height: 16px;
+  border: 1px solid transparent; /* Border trong suốt để giữ layout */
+  border-radius: 0.25rem;
+  cursor: pointer;
+  color: #212529; /* Màu chữ mặc định cho các ngày */
+}
+
+/* Các ngày của tháng trước/sau */
+.react-calendar__tile--neighboringMonth {
+  color: #adb5bd; /* Màu xám nhạt hơn */
+}
+
+/* Ngày hôm nay */
+.react-calendar__tile--now {
+  background: #e9ecef; /* Màu nền cho ngày hôm nay */
+  font-weight: bold;
+  color: #212529; /* Màu chữ cho ngày hôm nay */
+}
+
+/* Khi hover vào một ngày */
+.react-calendar__tile:hover {
+  background-color: #dee2e6;
+}
+
+/* Ngày đang được chọn (active) */
+.react-calendar__tile--active {
+  background: #28a745; /* Màu xanh lá cây (ví dụ: Bootstrap's btn-success) */
+  color: white;
+  border-radius: 50%; /* Làm cho ô được chọn thành hình tròn */
+  font-weight: bold;
+}
+
+.react-calendar__tile--active:hover {
+  background: #218838; /* Màu xanh lá cây đậm hơn khi hover */
+}
+/* ...existing code... */
