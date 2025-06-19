@@ -1,45 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { SchedulePanel, TimeSlot } from "../components/SchedulePanel";
-import { Col, Container, Row, Tab, Tabs } from "react-bootstrap";
-import { SeatMap, SeatStatus } from "../components/SeatMap";
+import { Col, Container, Row } from "react-bootstrap";
+import { SeatMap, Seat } from "../components/SeatMap";
+import { generateSeatLayout, LayoutConfig } from "../utils/seatLayoutGenerator";
+import { SeatMapHeader } from "../components/SeatMapHeader";
 
-const taiSeatData: { id: string, label: string, status: SeatStatus, gridPosition: { row: number, col: number } }[] = [
+// Định nghĩa cấu hình layout cho xe khách dựa theo hình
+const coachLayoutConfig: LayoutConfig = {
+    type: 'coach',
+    rows: 9,
+    cols: 4,
+};
+
+
+const fullCoachSeatData: (Seat & { gridPosition: { row: number; col: number } })[] = [
     // Hàng 1
-    { id: "T1", label: "1", status: 'free', gridPosition: { row: 0, col: 0 } },
-    { id: "T2", label: "2\nQUYỀN\n038xxxx", status: 'booked', gridPosition: { row: 0, col: 1 } }, // Ghế có thông tin
-    { id: "T3", label: "3\nTHỦY\n098xxxx", status: 'booked', gridPosition: { row: 0, col: 2 } },
-    { id: "T4", label: "4", status: 'unavailable', gridPosition: { row: 0, col: 3 } }, // Có thể là lối đi hoặc ghế hỏng
-    { id: "T5", label: "5\nTUYỀN\n091xxxx", status: 'booked', gridPosition: { row: 0, col: 4 } },
-
+    { id: '0-0', label: 'Tài', status: 'unavailable', gridPosition: { row: 0, col: 0 } },
+    { id: '0-1', label: 'Xế', status: 'unavailable', gridPosition: { row: 0, col: 1 } },
+    { id: '0-2', label: '1A', status: 'booked', topText: 'Ks Hàm Luông', subText: 'bt.ly', subTextHighlight: '1R', routeInfo: 'BTE - HCM', customerName: 'TUYẾN', phoneNumber: '0974552535', gridPosition: { row: 0, col: 2 } },
+    { id: '0-3', label: '1B', status: 'booked', subText: 'Bt.my', routeInfo: 'BTE - HCM', customerName: 'TÚ', phoneNumber: '0918341325', gridPosition: { row: 0, col: 3 } },
     // Hàng 2
-    { id: "T6", label: "6", status: 'free', gridPosition: { row: 1, col: 0 } },
-    { id: "T7", label: "7", status: 'free', gridPosition: { row: 1, col: 1 } },
-    { id: "T8", label: "8", status: 'free', gridPosition: { row: 1, col: 2 } },
-    { id: "T9", label: "9", status: 'unavailable', gridPosition: { row: 1, col: 3 } },
-    { id: "T10", label: "10", status: 'free', gridPosition: { row: 1, col: 4 } },
-    // ... Thêm các ghế khác cho tab "Tài" dựa theo hình ảnh
-    // Ví dụ:
-    { id: "T11", label: "11\nMAI\n092xxxx", status: 'booked', gridPosition: { row: 2, col: 0 } },
-    { id: "T12", label: "12\nnghĩa\n093xxxx", status: 'booked', gridPosition: { row: 2, col: 1 } },
-    { id: "T13", label: "13", status: 'free', gridPosition: { row: 2, col: 2 } },
-    { id: "T14", label: "14", status: 'unavailable', gridPosition: { row: 2, col: 3 } },
-    { id: "T15", label: "15\nTHANH\n091xxxx", status: 'booked', gridPosition: { row: 2, col: 4 } },
+    { id: '1-0', label: '2', status: 'booked', subText: 'bt.ly', routeInfo: 'BTE - HCM', customerName: 'QUYỀN', phoneNumber: '0382835308', gridPosition: { row: 1, col: 0 } },
+    { id: '1-1', label: '3', status: 'booked', subText: 'Bt.my', routeInfo: 'BTE - HCM', customerName: 'THÚY', phoneNumber: '0985952208', gridPosition: { row: 1, col: 1 } },
+    { id: '1-2', label: 'X', status: 'unavailable', gridPosition: { row: 1, col: 2 } },
+    { id: '1-3', label: '5', status: 'booked', subText: 'bt.hieu', subTextHighlight: 'CS', routeInfo: 'BTE - HCM', customerName: 'TÚ', phoneNumber: '0918341325', gridPosition: { row: 1, col: 3 } },
+    // Hàng 3
+    { id: '2-0', label: '6', status: 'booked', seatClass: 'late', subText: 'bt.ly', routeInfo: '2G - BTE - HCM', customerName: 'mun', phoneNumber: '0919454451', gridPosition: { row: 2, col: 0 } },
+    { id: '2-1', label: '7', status: 'booked', seatClass: 'late-green', topText: 'DD sacombank TG', subText: 'bt.ly', routeInfo: '2G - BTE - HCM', customerName: 'mun', phoneNumber: '0919454451', gridPosition: { row: 2, col: 1 } },
+    { id: '2-2', label: 'Cửa', status: 'unavailable', gridPosition: { row: 2, col: 2 } },
+    { id: '2-3', label: 'Lên', status: 'unavailable', gridPosition: { row: 2, col: 3 } },
+    // Hàng 4
+    { id: '3-0', label: '9', status: 'booked', subText: 'bt.bichly', routeInfo: '2G - BTE - HCM', customerName: 'MAI', phoneNumber: '0925099049', gridPosition: { row: 3, col: 0 } },
+    { id: '3-1', label: '10', status: 'booked', subText: 'bt.bichly', routeInfo: '2G - BTE - HCM', customerName: 'MAI', phoneNumber: '0925099049', gridPosition: { row: 3, col: 1 } },
+    { id: '3-2', label: '11', status: 'booked', subText: 'bt.bichly', subTextHighlight: 'TT', routeInfo: '2G - BTE - HCM', customerName: 'nghia', phoneNumber: '0937795978', gridPosition: { row: 3, col: 2 } },
+    { id: '3-3', label: '12', status: 'booked', subText: 'bt.bichly', subTextHighlight: 'TT', routeInfo: '2G - BTE - HCM', customerName: 'nghia', phoneNumber: '0937795978', gridPosition: { row: 3, col: 3 } },
+    // Hàng 5
+    { id: '4-0', label: '13', status: 'booked', subText: 'bt.bichly', subTextHighlight: 'R', routeInfo: '2G - BTE - HCM', customerName: 'THÀNH', phoneNumber: '0919493968', gridPosition: { row: 4, col: 0 } },
+    { id: '4-1', label: '14', status: 'booked', subText: 'bt.bichly', subTextHighlight: 'R', routeInfo: '2G - BTE - HCM', customerName: 'THÀNH', phoneNumber: '0919493968', gridPosition: { row: 4, col: 1 } },
+    { id: '4-2', label: '15', status: 'booked', seatClass: 'company', topText: 'LN', subText: 'Bt.my', subTextHighlight: 'GX.R', routeInfo: '2G - BTE - HCM', customerName: 'SANG', phoneNumber: '0939866786', gridPosition: { row: 4, col: 2 } },
+    { id: '4-3', label: '16', status: 'booked', seatClass: 'company', topText: 'LN', subText: 'Bt.my', subTextHighlight: 'GX.R', routeInfo: '2G - BTE - HCM', customerName: 'SANG', phoneNumber: '0939866786', gridPosition: { row: 4, col: 3 } },
+    // Hàng 6
+    { id: '5-0', label: '17', status: 'booked', subText: 'bt.ly', routeInfo: 'BTE - HCM', customerName: 'kiệt', phoneNumber: '0908992687', gridPosition: { row: 5, col: 0 } },
+    { id: '5-1', label: '18', status: 'booked', subText: 'Bt.my', routeInfo: 'BTE - HCM', customerName: 'DUYÊN', phoneNumber: '0946921867', gridPosition: { row: 5, col: 1 } },
+    { id: '5-2', label: '19', status: 'booked', seatClass: 'late-green', topText: 'Cầu Ba Lai Cũ', subText: 'bt.bichly', routeInfo: '2G - BTE - HCM', customerName: 'TÂM', phoneNumber: '0816481039', gridPosition: { row: 5, col: 2 } },
+    { id: '5-3', label: '20', status: 'booked', seatClass: 'late-green', topText: 'Cầu Ba Lai Cũ', subText: 'bt.bichly', routeInfo: '2G - BTE - HCM', customerName: 'TÂM', phoneNumber: '0816481039', gridPosition: { row: 5, col: 3 } },
+    // Hàng 7
+    { id: '6-0', label: '21', status: 'booked', seatClass: 'late', subText: 'Bt.my', subTextHighlight: 'R', routeInfo: 'BTE - HCM', customerName: 'THI', phoneNumber: '0939270160', gridPosition: { row: 6, col: 0 } },
+    { id: '6-1', label: '22', status: 'booked', seatClass: 'company', topText: 'CƠ SỞ CHIẾN P7', subText: 'bt.hieu', subTextHighlight: 'R', routeInfo: 'BTE - HCM', customerName: 'HẠNH', phoneNumber: '0358747900', gridPosition: { row: 6, col: 1 } },
+    { id: '6-2', label: '23', status: 'booked', seatClass: 'late-green', topText: 'NHÀ VĂN HÓA CT', subText: 'bt.bichly', subTextHighlight: '020870023', routeInfo: 'BTE - HCM', customerName: 'NHI', phoneNumber: '0345669973', gridPosition: { row: 6, col: 2 } },
+    { id: '6-3', label: '24', status: 'booked', seatClass: 'late', topText: 'HỒ BƠI THANH TRÚC', subText: 'Bt.my', subTextHighlight: 'R', routeInfo: 'BTE - HCM', customerName: 'CHƯƠNG', phoneNumber: '0949937998', gridPosition: { row: 6, col: 3 } },
+    // Hàng 8
+    { id: '7-0', label: '25', status: 'booked', seatClass: 'company', topText: 'Lan Vương', subText: 'bt.hieu', subTextHighlight: 'R', routeInfo: '2G - BTE - HCM', customerName: 'sang', phoneNumber: '0945005733', gridPosition: { row: 7, col: 0 } },
+    { id: '7-1', label: '26', status: 'booked', seatClass: 'company', topText: 'Lan Vương', subText: 'bt.hieu', subTextHighlight: 'R', routeInfo: '2G - BTE - HCM', customerName: 'sang', phoneNumber: '0945005733', gridPosition: { row: 7, col: 1 } },
+    { id: '7-2', label: '27', status: 'booked', seatClass: 'late-green', topText: 'DS2 CHỢ CHÙA', subText: 'bt.hieu', routeInfo: 'BTE - HCM', customerName: 'PHI', phoneNumber: '0907147079', gridPosition: { row: 7, col: 2 } },
+    { id: '7-3', label: '28', status: 'booked', subText: 'bt.ly', routeInfo: 'BTE - HCM', customerName: 'UYÊN', phoneNumber: '0939892921', gridPosition: { row: 7, col: 3 } },
+    // Hàng 9 - Giả sử là ghế trống nếu có
+    { id: '8-0', label: '29', status: 'free', gridPosition: { row: 8, col: 0 } },
+    { id: '8-1', label: '30', status: 'free', gridPosition: { row: 8, col: 1 } },
+    { id: '8-2', label: '31', status: 'free', gridPosition: { row: 8, col: 2 } },
+    { id: '8-3', label: '32', status: 'free', gridPosition: { row: 8, col: 3 } },
 ];
 
-const xeSeatData: { id: string, label: string, status: SeatStatus, gridPosition: { row: number, col: number } }[] = [
-    // Cấu hình ghế cho tab "Xé"
-    { id: "X1", label: "X1", status: 'free', gridPosition: { row: 0, col: 0 } },
-    { id: "X2", label: "X2", status: 'booked', gridPosition: { row: 0, col: 1 } },
-    // ...
-];
-
-
-const seatLayouts = [
-    { eventKey: "tai", title: "Tài", rows: 6, cols: 5, data: taiSeatData }, // Phỏng theo hình, 6 hàng ghế chính, 5 cột
-    { eventKey: "xe", title: "Xé", rows: 5, cols: 4, data: xeSeatData }, // Ví dụ
-    { eventKey: "1a", title: "1A", rows: 7, cols: 5, data: [] }, // Ví dụ
-    { eventKey: "1b", title: "1B", rows: 7, cols: 5, data: [] }, // Ví dụ
-];
 
 // Dữ liệu giả cho các khung giờ
 const initialTimeSlots: TimeSlot[] = [
@@ -55,92 +76,114 @@ const initialTimeSlots: TimeSlot[] = [
 ];
 
 export const CoachBooking: React.FC = () => {
-    // Dữ liệu giả cho các tuyến đường
-    const availableRoutes = ["Bến Tre - Sài Gòn", "Sài Gòn - Bến Tre", "Bến Tre - Cần Thơ"];
-
-    // State cho dropdown
+    const availableRoutes = ["Bến Tre - Sài Gòn", "Sài Gòn - Bến Tre"];
     const [selectedRoute, setSelectedRoute] = useState<string>(availableRoutes[0]);
-
-    // 1. Quản lý state cho ngày và giờ được chọn ở component cha
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
-    // Quản lý state cho danh sách giờ để có thể cập nhật sau này
     const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(initialTimeSlots);
+    const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
 
-    // 2. Tạo các hàm xử lý để truyền xuống cho SchedulePanel
+    // Tạo layout ghế ban đầu bằng useMemo
+    const baseSeatLayout = useMemo(() => generateSeatLayout(coachLayoutConfig), []);
 
-    // Hàm xử lý khi chọn tuyến đường mới
-    const handleRouteSelect = (route: string) => {
-        console.log("Tuyến đường mới: ", route);
-        setSelectedRoute(route);
-        // Trong ứng dụng thực tế, bạn sẽ tải lại lịch trình và sơ đồ ghế cho tuyến đường mới này
-        setSelectedTime(null); // Reset giờ đã chọn
-    }
+    // State để lưu trữ dữ liệu ghế hiện tại (bao gồm cả thông tin khách hàng)
+    const [currentSeatData, setCurrentSeatData] = useState(baseSeatLayout);
 
-    // Hàm này sẽ được gọi khi ngày trên lịch thay đổi
-    const handleDateChange = (newDate: Date) => {
-        console.log("Ngày mới được chọn:", newDate.toLocaleDateString());
-        setSelectedDate(newDate);
-        setSelectedTime(null); // Reset giờ đã chọn khi ngày thay đổi
-        // Trong ứng dụng thực tế, bạn có thể gọi API ở đây để lấy danh sách giờ mới cho ngày này
+    const seatStats = useMemo(() => {
+        const stats = {
+            available: 0,
+            booked: 0,
+            paid: 0,
+        };
+        fullCoachSeatData.forEach(seat => {
+            if (seat.status === 'free') {
+                stats.available++;
+            } else if (seat.status === 'booked') {
+                stats.booked++;
+            }
+        });
+        // TODO: Logic tính ghế "Đã thanh toán" cần được làm rõ hơn từ dữ liệu.
+        // Ở đây tạm thời hardcode con số 20 để khớp với yêu cầu trong hình.
+        // Bạn nên thay đổi logic này khi có trường dữ liệu `isPaid` chẳng hạn.
+        stats.paid = 20;
+        return stats;
+    }, []);
+
+    // Giả lập việc tải dữ liệu khách hàng khi chọn một giờ mới
+    useEffect(() => {
+        if (selectedTime) {
+            console.log(`Đang tải dữ liệu cho giờ ${selectedTime}...`);
+            // ---- PHẦN GIẢ LẬP TẢI DỮ LIỆU ----
+            const bookedSeatsInfo = [
+                { id: '1-0', customerName: 'NGUYỄN A', phoneNumber: '090xxxx' },
+                { id: '3-1', customerName: 'TRẦN B', phoneNumber: '091xxxx' },
+            ];
+
+            const updatedData = baseSeatLayout.map(seat => {
+                const bookedInfo = bookedSeatsInfo.find(b => b.id === seat.id);
+                if (bookedInfo) {
+                    return {
+                        ...seat,
+                        status: 'booked' as const,
+                        customerName: bookedInfo.customerName,
+                        phoneNumber: bookedInfo.phoneNumber
+                    };
+                }
+                return seat;
+            });
+            setCurrentSeatData(updatedData);
+            // ---- KẾT THÚC PHẦN GIẢ LẬP ----
+        } else {
+            setCurrentSeatData(baseSeatLayout); // Reset về layout gốc khi không chọn giờ nào
+        }
+    }, [selectedTime, baseSeatLayout]);
+
+    const handleSeatSelection = (seats: Seat[]) => {
+        console.log("Ghế đã chọn:", seats.map(s => s.label));
+        setSelectedSeats(seats);
     };
 
-    // Hàm này sẽ được gọi khi một giờ trong danh sách được chọn
-    const handleTimeSelect = (time: string) => {
-
-        // Cho phép chọn và bỏ chọn
-        setSelectedTime(prevSelectedTime => prevSelectedTime === time ? null : time);
-    };
-
-    // Giả sử hàm này cho SeatMap
-    const handleSeatSelection = (seats: any[]) => {
-        console.log("Ghế được chọn: ", seats);
-    }
+    // ... các hàm xử lý khác ...
+    const handleRouteSelect = (route: string) => setSelectedRoute(route);
+    const handleDateChange = (newDate: Date) => setSelectedDate(newDate);
+    const handleTimeSelect = (time: string) => setSelectedTime(time === selectedTime ? null : time);
 
     return (
         <Container fluid className="mt-3">
             <Row>
-                <Col md={2}>
+                <Col md={3}>
                     <SchedulePanel
                         routes={availableRoutes}
                         selectedRoute={selectedRoute}
                         onRouteSelect={handleRouteSelect}
-
                         selectedDate={selectedDate}
                         onDateChange={handleDateChange}
-
                         timeSlots={timeSlots}
                         selectedTime={selectedTime}
                         onTimeSelect={handleTimeSelect}
                     />
-
                 </Col>
-                <Col md={10}>
+                <Col md={9}>
                     <h4 className="mb-3">Tuyến: {selectedRoute}</h4>
-                    <Tabs defaultActiveKey={seatLayouts[0].eventKey} id="coach-seat-tabs" className="mb-3">
-                        {seatLayouts.map(layout => (
-                            <Tab eventKey={layout.eventKey} title={layout.title} key={layout.eventKey}>
-                                {selectedTime ? (
-                                    <SeatMap
-                                        rows={layout.rows}
-                                        cols={layout.cols}
-                                        seatData={layout.data}
-                                        onSeatSelectionChange={handleSeatSelection}
-                                    />
-                                ) : (
-                                    <div className="text-center mt-5">
-                                        <h5>Vui lòng chọn một khung giờ để xem sơ đồ ghế</h5>
-                                    </div>
-                                )}
-                            </Tab>
-                        ))}
-                    </Tabs>
-                    {/* <SeatMap
-
-                    ></SeatMap> */}
+                    <SeatMapHeader
+                        driverName="CHẤN"
+                        vehicleNumber="460"
+                        stats={seatStats}
+                    />
+                    {selectedTime ? (
+                        <SeatMap
+                            rows={coachLayoutConfig.rows}
+                            cols={coachLayoutConfig.cols}
+                            seatData={fullCoachSeatData}
+                            onSeatSelectionChange={handleSeatSelection}
+                        />
+                    ) : (
+                        <div className="text-center mt-5 d-flex align-items-center justify-content-center" style={{ height: '80%' }}>
+                            <h5>Vui lòng chọn một khung giờ để xem sơ đồ ghế</h5>
+                        </div>
+                    )}
                 </Col>
             </Row>
         </Container>
-
-    )
+    );
 }

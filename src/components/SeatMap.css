@@ -1,0 +1,312 @@
+/* SeatMap.css */
+
+/* Container chính của sơ đồ ghế */
+.seat-map-container {
+    padding: 1rem;
+    background-color: #f8f9fa; /* Màu nền nhạt */
+    border-radius: 0.375rem;
+  }
+  
+  /* Lưới hiển thị các ghế */
+  .seat-map-grid {
+    display: grid;
+    /* Số cột sẽ được truyền vào từ style của component */
+    grid-template-columns: repeat(var(--cols, 5), 1fr);
+    gap: 8px; /* Khoảng cách giữa các ghế */
+  }
+  
+  /* Kiểu cho một ô ghế */
+  .seat {
+    /* padding: 0.5rem; */ /* Removed, children will handle padding */
+    min-height: 100px; /* Increased min-height for more content */
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* Stretch children to fill width */
+    justify-content: flex-start;
+    text-align: center;
+    font-size: 0.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    background-color: white;
+    overflow: hidden; /* Prevent content from spilling out */
+    padding: 0;
+  }
+  
+  /* STYLE MỚI CHO TOP TEXT */
+  .seat-top-bar {
+    display: flex;
+    width: 100%;
+    align-items: stretch; /* Đảm bảo các item có cùng chiều cao */
+  }
+  
+  /* Style mới cho top text để giống hình ảnh */
+  .seat-top-text {
+    height: 32px;
+    flex-grow: 1; /* Lấp đầy không gian còn lại */
+    background-color: #28a745; /* Màu xanh lá cây */
+    color: white;
+    text-align: right;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Căn chữ sang phải */
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Kiểu cho thông tin hiển thị trên ghế */
+  .seat-label {
+    font-size: 1rem; /* Giữ nguyên kích thước font */
+  }
+
+  .seat-label-box {
+    background-color: #f0f0f0;
+    color: black;
+    padding: 2px 24px; /* Điều chỉnh padding cho cân đối */
+    font-weight: bold;
+    border: 1px solid #aaa;
+    font-size: 1.1rem;
+    margin-bottom: 0; /* Bỏ margin-bottom vì đã có container */
+    flex-shrink: 0; /* Ngăn không cho co lại */
+  }
+  
+  .seat-customer-name {
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  
+  .seat-customer-phone {
+    font-size: 0.75rem;
+    color: #495057;
+  }
+  
+  /* --- TRẠNG THÁI CỦA GHẾ --- */
+  
+  /* Ghế trống */
+  .seat-status-free {
+    /* Style mặc định đã ổn */
+  }
+  .seat-status-free:hover {
+    background-color: #e6f7ff; /* Màu xanh dương nhạt khi hover */
+    border-color: #0d6efd;
+  }
+  
+  /* Ghế đã có khách đặt */
+  .seat-status-booked {
+    background-color: #ffff99; /* Màu vàng mặc định cho ghế đã đặt */
+    border-color: #999;
+    cursor: default;
+    box-sizing: border-box;
+  }
+  .seat-status-booked .seat-customer-name {
+      color: #991b1b; /* Màu chữ đậm hơn */
+  }
+  .seat-status-booked .seat-customer-phone {
+      color: #b91c1c;
+  }
+  
+  
+  /* Ghế đang được chọn */
+  .seat-status-selected {
+    background-color: #16a34a; /* Màu xanh lá đậm */
+    color: white;
+    border-color: #15803d;
+    transform: scale(1.05); /* Hiệu ứng phóng to nhẹ */
+  }
+  .seat-status-selected .seat-label,
+  .seat-status-selected .seat-customer-name,
+  .seat-status-selected .seat-customer-phone {
+      color: white;
+  }
+  
+  /* Ghế không khả dụng (lối đi, ghế hỏng) */
+  .seat-status-unavailable {
+    background-color: #e5e7eb;
+    border-color: #d1d5db;
+    cursor: not-allowed;
+  }
+
+  /* Container for simple labels (free, selected, unavailable) */
+.seat-label-container {
+  display: flex;
+  align-items: center; /* Changed from center */
+  justify-content: center; /* Keep this to center horizontally */
+  width: 100%;
+  height: 100%;
+  padding: 0.5rem; /* Original padding for simple seats */
+  box-sizing: border-box;
+}
+
+.seat-status-unavailable .seat-label-container {
+  align-items: flex-start; /* Align items to the top */
+  justify-content: flex-start; /* Align items to the left */
+}
+
+.seat-status-unavailable .seat-label {
+  text-align: left; /* Align text to the left */
+}
+
+/* STYLE MỚI CHO LAYOUT 2 CỘT */
+.seat-booked-content {
+  display: flex;
+  justify-content: space-between;
+  flex-grow: 1; /* Cho phép nó lấp đầy không gian còn lại */
+  width: 100%;
+  height: 100%;
+}
+
+.seat-left-column, .seat-right-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Tự động căn trên và dưới */
+}
+
+.seat-left-column {
+  align-items: flex-start; /* Căn các mục sang trái */
+}
+
+.seat-right-column {
+  align-items: flex-end; /* Căn các mục sang phải */
+  text-align: right;
+}
+
+
+.seat-main-info .seat-secondary-label {
+  font-size: 0.9em;
+  color: #555;
+}
+
+.seat-left-column .seat-icons {
+  display: flex;
+  gap: 5px;
+}
+
+/* Các phần tử trong cột phải */
+.seat-right-column .seat-route-info {
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.seat-right-column .seat-customer-name {
+  font-weight: bold;
+  color: #0000cc;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  margin-top: auto;
+}
+
+
+.seat-right-column .seat-customer-phone {
+  font-size: 1rem;
+  color: black;
+  font-weight: bold;
+}
+
+.seat-late.seat-status-booked {
+  background-color: #ffb3d1; /* Pink */
+}
+
+.seat-late-green.seat-status-booked {
+  background-color: #90ee90; /* Light green */
+}
+
+.seat-company.seat-status-booked {
+  background-color: #87ceeb; /* Sky blue */
+}
+
+.seat-main-info .seat-secondary-label .red-text {
+  color: red;
+  font-weight: bold;
+}
+
+.seat-main-info .seat-route-info {
+  font-size: 0.85em;
+  color: #333;
+  margin-top: 1px;
+  font-weight: 500;
+}
+
+.seat-main-info .seat-customer-name {
+  font-weight: bold;
+  color: #0000cc; /* Blue text for name */
+  font-size: 1em;
+  margin-top: 2px;
+  text-transform: uppercase;
+}
+
+.seat-main-info .seat-customer-phone {
+  font-size: 0.9em;
+  color: black;
+  margin-top: 2px;
+  font-weight: bold;
+}
+
+.seat-icon {
+  border: 1px solid #555;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7em;
+  background-color: transparent;
+  color: #333;
+  font-weight: bold;
+}
+
+/* Container for simple labels (free, selected, unavailable) */
+.seat-label-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0.5rem; /* Original padding for simple seats */
+  box-sizing: border-box;
+}
+
+  /* Phần chú thích */
+  .seat-legend {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+  }
+  .legend-box {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ccc;
+    margin-right: 8px;
+    border-radius: 0.25rem;
+  }
+  
+  /* Nút xác nhận */
+  .booking-summary {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-top: 1px solid #dee2e6;
+      text-align: center;
+  }
+
+  .seat-late .seat-main-info {
+    background-color: #ffb3d1; /* Pink */
+}
+
+.seat-late-green .seat-main-info {
+    background-color: #90ee90; /* Light green */
+}
+
+.seat-company .seat-main-info {
+    background-color: #87ceeb; /* Sky blue */
+}

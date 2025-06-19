@@ -2,6 +2,7 @@
 
 .time-grid-container {
   margin-top: 1rem;
+  background-color: white;
 }
 
 .time-slot {
@@ -53,9 +54,7 @@
 .time-slot.status-available {
   background-color: #e6f7f0; /* Màu xanh lá cây rất nhạt */
 }
-.time-slot.status-available::before {
-  background-color: #0d6efd; /* Màu xanh dương cho đường kẻ trên (Bootstrap's primary color) */
-}
+
 .time-slot.status-available .time-slot-time {
   color: #dc3545; /* Giờ màu đỏ */
 }
@@ -69,9 +68,7 @@
   background-color: #ffebee; /* Màu đỏ/hồng rất nhạt */
   cursor: not-allowed;
 }
-.time-slot.status-full::before {
-  background-color: #0d6efd; /* Màu xanh dương cho đường kẻ trên */
-}
+
 .time-slot.status-full .time-slot-time {
   color: #dc3545; /* Giờ màu đỏ */
 }
@@ -85,9 +82,7 @@
   color: white;
   border-color: #198754; /* Viền cùng màu với nền */
 }
-.time-slot.status-selected::before {
-  background-color: transparent; /* Không có đường kẻ trên cho selected */
-}
+
 .time-slot.status-selected .time-slot-time,
 .time-slot.status-selected .time-slot-info {
   color: white; /* Chữ màu trắng */

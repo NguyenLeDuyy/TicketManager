@@ -4,19 +4,18 @@
   display: flex;
   height: 50px; /* Hoặc chiều cao bạn muốn */
   margin-bottom: 0; /* Xóa margin nếu các ngày trong tuần nằm ngay dưới */
-  background-color: #0b68c5; /* Màu nền xanh đậm (ví dụ: Bootstrap's bg-dark) */
   color: white; /* Màu chữ trắng */
   align-items: center; /* Căn giữa các item theo chiều dọc */
 }
 
 .react-calendar__navigation button {
-  min-width: 44px;
-  background: none;
+  min-width: 30px; /* Giảm chiều rộng tối thiểu */
+  background: rgba(18, 18, 171, 0.76);
   border: none;
-  font-size: 1rem; /* Điều chỉnh kích thước font */
+  font-size: 0.9rem; /* Giảm kích thước font */
   cursor: pointer;
-  color: white; /* Màu chữ trắng cho các nút */
-  padding: 0.5rem 0.75rem; /* Thêm padding nếu cần */
+  color: white;
+  padding: 0.4rem 0.6rem; /* Giảm padding */
   text-transform: capitalize;
 }
 
@@ -34,10 +33,11 @@
 .react-calendar__navigation__label {
   font-weight: bold;
   flex-grow: 1 !important;
-  color: white; /* Đảm bảo màu chữ trắng */
-  pointer-events: none; /* Nếu bạn không muốn nó có thể click */
-  font-size: 0.2rem; /* Điều chỉnh kích thước font cho phù hợp */
+  color: white;
+  pointer-events: none;
+  font-size: 1rem; /* Điều chỉnh lại kích thước font cho hợp lý */
 }
+
 
 /* Phần hiển thị các ngày trong tháng */
 .react-calendar__month-view__weekdays {
@@ -59,17 +59,15 @@
 /* Ghi đè style cho các ô ngày */
 /* ...existing code... */
 .react-calendar__tile {
-  max-width: 100%;
-  padding: 0.75em 0.5em;
+  width: 100%;
+  padding: 0.5em 0.4em; /* Giảm padding */
   background: none;
   text-align: center;
-  line-height: 16px;
-  border: 1px solid transparent; /* Border trong suốt để giữ layout */
-  border-radius: 0.25rem;
+  line-height: 12px; /* Giảm chiều cao dòng */
+  border: 1px solid transparent;
   cursor: pointer;
-  color: #212529; /* Màu chữ mặc định cho các ngày */
+  color: #212529;
 }
-
 /* Các ngày của tháng trước/sau */
 .react-calendar__tile--neighboringMonth {
   color: #adb5bd; /* Màu xám nhạt hơn */

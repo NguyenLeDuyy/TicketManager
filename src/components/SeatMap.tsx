@@ -1,81 +1,124 @@
 import React, { useEffect, useState } from "react";
-import { Container } from "react-bootstrap";
+import { Container, Button } from "react-bootstrap";
+import './SeatMap.css';
+import { SeatItem } from "./SeatItem"; // Sử dụng component SeatItem bạn đã tạo
 
-// Định nghĩa các trạng thái của ghế
 export type SeatStatus = 'free' | 'selected' | 'booked' | 'unavailable';
 
-// Định nghĩa cấu trúc dữ liệu cho một ghế
 export interface Seat {
-    id: string; // Ví dụ: "A1", "B5"
+    id: string;
     status: SeatStatus;
-    label?: string; // Nhãn hiển thị trên ghế (ví dụ: số ghế)
-    price?: number; // Giá vé (nếu có)
+    label?: string;
+    customerName?: string;
+    phoneNumber?: string;
+    price?: number;
+    // Thêm các trường mới
+    topText?: string;
+    subText?: string;
+    subTextHighlight?: string;
+    routeInfo?: string;
+    seatClass?: string;
+    destination?: string;
 }
 
 interface SeatMapProps {
     rows: number;
     cols: number;
-    // Có thể truyền vào một mảng các ghế đã được đặt trước hoặc không khả dụng
-    initialSeats?: Seat[][];
-    // Hàm callback khi có sự thay đổi lựa chọn ghế
     onSeatSelectionChange?: (selectedSeats: Seat[]) => void;
-    // Dữ liệu ghế từ bên ngoài (ví dụ: từ API hoặc hình ảnh bạn cung cấp)
-    seatData?: { id: string, label: string, status: SeatStatus, gridPosition: { row: number, col: number } }[];
+    seatData?: (Seat & { gridPosition: { row: number; col: number } })[];
 }
 
 export const SeatMap: React.FC<SeatMapProps> = ({
     rows,
     cols,
-    initialSeats,
     onSeatSelectionChange,
-    seatData,
+    seatData = [],
 }) => {
-
-    // tạo ra state có mảng 2 chiều là các SeatStatus với giá trị mặc định là 'free'
+    // State để lưu trữ bản đồ ghế dưới dạng mảng 2 chiều
     const [seatMap, setSeatMap] = useState<Seat[][]>([]);
-    // tạo ra state là mảng một chiều để chứa các ghế đã chọn
+
+    // State để lưu trữ danh sách các ghế đang được chọn
     const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
 
-    // khởi tạo bản đồ ghế khi component được mount hoặc props thay đổi
+    // Effect để xây dựng mảng 2 chiều 'seatMap' từ 'seatData' (mảng 1 chiều)
     useEffect(() => {
-        let newSeatMap: Seat[][] = [];
-        if (seatData && seatData.length > 0) {
-            newSeatMap = Array.from({ length: rows }, () =>
-                Array(cols).fill(null).map(() => ({ id: '', status: 'unavailable', label: '' }))
-            );
+        let newMap: Seat[][] = Array.from({ length: rows }, () =>
+            Array(cols).fill(null).map(() => ({ id: '', status: 'unavailable' }))
+        );
+        seatData.forEach(seat => {
+            if (seat.gridPosition.row < rows && seat.gridPosition.col < cols) {
+                newMap[seat.gridPosition.row][seat.gridPosition.col] = seat;
+            }
+        });
+        setSeatMap(newMap);
+        setSelectedSeats([]); // Reset khi dữ liệu ghế thay đổi
+    }, [seatData, rows, cols]);
 
-            // chèn dữ liệu của seatData vào giao diện
-            seatData.forEach(seat => {
-                if (seat.gridPosition.col < cols && seat.gridPosition.row < rows) {
-                    newSeatMap[seat.gridPosition.row][seat.gridPosition.col] = {
-                        id: seat.id,
-                        label: seat.label || `${String.fromCharCode(65 + seat.gridPosition.col)}${seat.gridPosition.col + 1}`,
-                        status: seat.status,
-                    }
-                }
-            })
-        } else if (initialSeats) {
-            newSeatMap = initialSeats;
-        } else {
-            // Nếu không có initialSeats hoặc seatData, tạo bản đồ ghế mặc định
-            newSeatMap = Array.from({ length: rows }, (_, rowIndex) =>
-                Array.from({ length: cols }, (_, colIndex) => ({
-                    id: `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`,
-                    lable: `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`,
-                    status: 'available' as SeatStatus
-                }))
-            )
+    // Hàm xử lý khi người dùng click vào một ghế
+    const handleSeatClick = (seat: Seat) => {
+        if (seat.status === 'booked' || seat.status === 'unavailable') {
+            return;
         }
-        setSeatMap(newSeatMap);
-    }, [rows, cols, initialSeats, seatData])
 
-    if (seatMap.length === 0) {
-        return <p>Đang tải sơ đồ ghế...</p>;
-    }
+        const isCurrentlySelected = selectedSeats.some(s => s.id === seat.id);
+        let newSelectedSeats;
+
+        if (isCurrentlySelected) {
+            // Bỏ chọn ghế
+            newSelectedSeats = selectedSeats.filter(s => s.id !== seat.id);
+        } else {
+            // Chọn ghế
+            newSelectedSeats = [...selectedSeats, seat];
+        }
+
+        setSelectedSeats(newSelectedSeats);
+        if (onSeatSelectionChange) {
+            onSeatSelectionChange(newSelectedSeats);
+        }
+    };
 
     return (
-        <Container className="mt-3">
-            <h4 className="text-center mb-3">Sơ đồ ghế</h4>
+        <Container className="seat-map-container">
+            <div className="seat-map-grid" style={{ '--cols': cols } as React.CSSProperties}>
+                {seatMap.flat().map((seat, index) => {
+                    // Cập nhật trạng thái 'selected' cho ghế để re-render đúng
+                    const isSelected = selectedSeats.some(s => s.id === seat.id);
+                    const currentSeatState = {
+                        ...seat,
+                        status: isSelected ? 'selected' : seat.status,
+                    };
+                    return (
+                        <SeatItem
+                            key={seat.id || index}
+                            seat={currentSeatState}
+                            onClick={() => handleSeatClick(seat)}
+                        />
+                    );
+                })}
+            </div>
+
+            <div className="seat-legend">
+                <div className="legend-item">
+                    <div className="legend-box seat-status-free"></div><span>Còn trống</span>
+                </div>
+                <div className="legend-item">
+                    <div className="legend-box seat-status-selected"></div><span>Đang chọn</span>
+                </div>
+                <div className="legend-item">
+                    <div className="legend-box seat-status-booked"></div><span>Đã đặt</span>
+                </div>
+                <div className="legend-item">
+                    <div className="legend-box seat-status-unavailable" style={{ justifyContent: 'center', alignItems: 'center', display: 'flex' }}>X</div><span>Lối đi/Khác</span>
+                </div>
+            </div>
+
+            {selectedSeats.length > 0 && (
+                <div className="booking-summary">
+                    <h5>Ghế đã chọn: <span className="text-primary fw-bold">{selectedSeats.map(s => s.label).join(', ')}</span></h5>
+                    <p className="fs-5">Tổng tiền: <span className="text-danger fw-bold">{selectedSeats.reduce((total, seat) => total + (seat.price || 150000), 0).toLocaleString()} VNĐ</span></p>
+                    <Button variant="success" size="lg">Xác nhận đặt vé</Button>
+                </div>
+            )}
         </Container>
-    )
-}
+    );
+};
